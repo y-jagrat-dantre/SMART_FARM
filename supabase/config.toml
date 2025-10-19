@@ -1,0 +1,7 @@
+project_id = "xibiayicnyvvfbmdcuai"
+
+[functions.gemini-chat]
+verify_jwt = false
+
+[functions.crop-prediction]
+verify_jwt = false
