@@ -1,4 +1,5 @@
 {
+  "homepage": "https://y-jagrat-dantre.github.io/SMART_FARM",
   "name": "vite_react_shadcn_ts",
   "private": true,
   "version": "0.0.0",
@@ -6,9 +7,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
