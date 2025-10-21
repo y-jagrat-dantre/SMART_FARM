@@ -1,14 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Globe, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { ref, onValue } from 'firebase/database';
+import { database } from '@/lib/firebase';
 
 export const WebpageViewer = () => {
   const [url, setUrl] = useState('');
   const [loadedUrl, setLoadedUrl] = useState('');
   const [isExpanded, setIsExpanded] = useState(true);
+
+  useEffect(() => {
+    const webUrlRef = ref(database, 'SMART_FARM/webUrl');
+    
+    const unsubscribe = onValue(webUrlRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setUrl(data);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleLoadUrl = () => {
     if (url.trim()) {
@@ -22,15 +36,8 @@ export const WebpageViewer = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleLoadUrl();
-    }
-  };
-
   const handleClear = () => {
     setLoadedUrl('');
-    setUrl('');
   };
 
   return (
@@ -42,46 +49,37 @@ export const WebpageViewer = () => {
       <Card className="overflow-hidden border-2 border-border shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 bg-card">
         {/* Header */}
         <div className="p-4 border-b border-border bg-muted/30">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Globe className="w-5 h-5 text-primary" />
               <h3 className="text-lg font-semibold text-foreground">Web Viewer</h3>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="hover:bg-muted"
-            >
-              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </Button>
-          </div>
-
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Enter URL (e.g., https://weather.com)"
-              className="flex-1 bg-background border-border focus:ring-primary"
-            />
-            <Button
-              onClick={handleLoadUrl}
-              disabled={!url.trim()}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              Go
-            </Button>
-            {loadedUrl && (
+            <div className="flex items-center gap-2">
               <Button
-                onClick={handleClear}
-                variant="outline"
-                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                onClick={handleLoadUrl}
+                disabled={!url.trim()}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                <X className="w-4 h-4" />
+                Go
               </Button>
-            )}
+              {loadedUrl && (
+                <Button
+                  onClick={handleClear}
+                  variant="outline"
+                  className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="hover:bg-muted"
+              >
+                {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -95,7 +93,7 @@ export const WebpageViewer = () => {
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
-              <div className="relative w-full" style={{ paddingBottom: '20.25%' }}>
+              <div className="relative w-full" style={{ paddingBottom: '25.25%' }}>
                 <iframe
                   src={loadedUrl}
                   className="absolute top-0 left-0 w-full h-full border-none"
